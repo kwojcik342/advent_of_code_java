@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 public class PipeMap {
     private HashMap<Integer, String> pipeMap;
@@ -157,5 +158,72 @@ public class PipeMap {
         ret = (this.getLoop().size() - 1) / 2;
 
         return ret;
+    }
+
+    public ArrayList<Tile> getVertices(){
+        //get vertices of polygon created by tiles connected to starting position
+        ArrayList<Tile> fullLoop = this.getLoop();
+        ArrayList<Tile> vertices = new ArrayList<>();
+
+        for(int i = 1; i < fullLoop.size(); i++){
+            if (Set.of('L', 'J', '7', 'F').contains(fullLoop.get(i).getLabel())) {
+                //vertices need to be in anti clockwise order for shoelace algoritm
+                vertices.add(0, fullLoop.get(i));
+            }
+        }
+
+        //check if starting point is vertice
+        int prevX = fullLoop.get(fullLoop.size() - 1).getX();
+        int prevY = fullLoop.get(fullLoop.size() - 1).getY();
+        int sX = fullLoop.get(0).getX();
+        int sY = fullLoop.get(0).getY();
+        int nextX = fullLoop.get(1).getX();
+        int nextY = fullLoop.get(1).getY();
+
+        if ((prevX == sX && nextX != sX) || (prevY == sY && nextY != sY)) {
+            //vertices need to be in anti clockwise order for shoelace algoritm
+            vertices.add(0, fullLoop.get(0));
+        }
+
+        return vertices;
+    }
+
+    public double getPolygonArea(){
+        // shoelace algorithm to get area of figure created by connected tiles https://www.101computing.net/the-shoelace-algorithm/
+        double area = 0;
+        ArrayList<Tile> vertices = this.getVertices();
+        int sumX = 0;
+        int sumY = 0;
+
+        for(int i = 0; i < vertices.size(); i++){
+            if (i < vertices.size() - 1) {
+                sumX += (vertices.get(i).getX() * vertices.get(i+1).getY());
+                sumY += (vertices.get(i).getY() * vertices.get(i+1).getX());
+            }else{
+                sumX += (vertices.get(i).getX() * vertices.get(0).getY());
+                sumY += (vertices.get(i).getY() * vertices.get(0).getX());
+            }
+        }
+
+        area = sumX - sumY;
+        if (area < 0) {
+            area = area * (-1.0);
+        }else{
+            area = area * (1.0);
+        }
+
+        return area / 2.0;
+    }
+
+    public double getTilesInsidePolygon(){
+        //solution for part 2
+        //calculate number of tiles inside polygon using pick's theorem https://en.wikipedia.org/wiki/Pick%27s_theorem
+        double tilesCount = 0;
+        double area = this.getPolygonArea();
+        double boundaryPoints = (this.getLoop().size() - 1) * 1.0;//starting point is twice on the list
+
+        tilesCount = area + 1.0 - (boundaryPoints / 2.0);
+
+        return tilesCount;
     }
 }

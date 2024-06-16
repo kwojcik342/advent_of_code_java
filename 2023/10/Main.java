@@ -28,6 +28,16 @@ public class Main {
         // }
 
         System.out.println("max distance = " + pm.getMaxDistanceOnLoop());
+        System.out.println("\n");
 
+        // for(Tile v : pm.getVertices()){
+        //     System.out.println(v);
+        // }
+
+        // System.out.println("polygon area = " + pm.getPolygonArea());
+        // System.out.println("\n");
+
+        System.out.println("points inside polygon = " + pm.getTilesInsidePolygon());
+        System.out.println("\n");
     }
 }
