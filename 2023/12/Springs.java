@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -7,10 +8,12 @@ public class Springs {
 
     private String labels;
     private ArrayList<Integer> groups;
+    private HashMap<String, Long> cache;
 
     public Springs(String line){
         this.labels = line.split(" ")[0];
         this.groups = Arrays.stream(line.split(" ")[1].split(",")).map(s -> Integer.valueOf(s)).collect(Collectors.toCollection(ArrayList::new));
+        this.cache = new HashMap<>();
     }
 
     private boolean isBracketOob(int startPos, int endPos){
@@ -221,7 +224,7 @@ public class Springs {
         }
 
         this.labels = sb.toString();
-        System.out.println(this.labels);
+        //System.out.println(this.labels);
 
         ArrayList<Integer> unfGroups = new ArrayList<>();
         for(int i = 0; i < unfoldingQuantity; i++){
@@ -229,14 +232,78 @@ public class Springs {
         }
 
         this.groups = unfGroups;
-        System.out.println(this.groups);
+        //System.out.println(this.groups);
     }
 
-    public int possibleArrangementsUnfolded(){
+    public long possibleArrangementsRec(String config, ArrayList<Integer> grouping){
+        //using recursion
+
+        //System.out.println("possibleArrangementsRec \"" + config + "\" " + grouping);
+        //System.out.println("empty config = " + config.isEmpty());
+        //System.out.println("grouping empty = " + grouping.isEmpty());
+
+        long possibilities = 0 ;
+
+        if (config.isEmpty()) {
+            if (grouping.isEmpty()) {
+                return 1;
+            }
+            return 0;
+        }
+
+        if (grouping.isEmpty()) {
+            if (config.contains("#")) {
+                return 0;
+            }
+            return 1;
+        }
+
+        //memoization - store results in cache 
+        String key = config + grouping.toString();
+        if (this.cache.containsKey(key)) {
+            return this.cache.get(key);
+        }
+
+        //split case 1 - next label is . or we are assuming ? is .
+        if (config.charAt(0) == '.' || config.charAt(0) == '?') {
+            possibilities += this.possibleArrangementsRec(config.substring(1), grouping);
+        }
+
+        //split case 2 - next label is # or we are assuming ? is # - this is start of next group
+        if (config.charAt(0) == '#' || config.charAt(0) == '?') {
+            if (grouping.get(0) <= config.length()                      //there are more labels left in string than labels required in next group
+               && !config.substring(0, grouping.get(0)).contains(".")   //group has to cotain either # or ?
+               && (grouping.get(0) == config.length()                   //this is last group in string
+                  || config.charAt(grouping.get(0)) != '#'))            //or character after this group is a separator
+            {
+                //System.out.println("config: " + config);
+                //System.out.println("grouping: " + grouping);
+
+                int newConfigLength = grouping.get(0) + 1;
+                if (grouping.get(0) == config.length() ) {
+                    newConfigLength -= 1;
+                }
+                String newConfig = config.substring(newConfigLength);       //remove current group from string and remove next char because it has to be separator
+                ArrayList<Integer> newGrouping = new ArrayList<>(grouping); //create new list of groups for next recurency because it would modify object that previous iterations are using
+                newGrouping.remove(0);                                      //remove current group from list of groups
+
+                possibilities += this.possibleArrangementsRec(newConfig, newGrouping);
+            }
+        }
+
+        this.cache.put(key, possibilities); //cache the result
+        return possibilities;
+    }
+
+    public long possibleArrangementsUnfolded(){
         //solution for part 2
         this.unfold();
 
-        return this.possibleArrangements();
+        String config = this.labels;
+        ArrayList<Integer> grouping = new ArrayList<>(this.groups);
+
+        //return this.possibleArrangements(); // bruteforce solution, takes too long
+        return this.possibleArrangementsRec(config, grouping);
     }
 }
 

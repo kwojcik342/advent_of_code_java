@@ -5,14 +5,15 @@ public class Main {
 
     public static void main(String[] args) {
 
-        int result = 0;
+        long result = 0;
 
         try (Scanner sc = new Scanner(Paths.get("input\\input.txt"))) {
             while (sc.hasNextLine()) {
                 String line = sc.nextLine();
                 if (!line.isBlank()) {
                     Springs sp = new Springs(line);
-                    result += sp.possibleArrangements();
+                    //result += sp.possibleArrangements(); //bruteforce
+                    result += sp.possibleArrangementsUnfolded();
                 }
             }
         } catch (Exception e) {
@@ -28,6 +29,6 @@ public class Main {
         //System.out.println(sp.possibleArrangements());
         //System.out.println(sp.possibleArrangementsUnfolded());
 
-        System.out.println("part 1 solution = " + result);
+        System.out.println("solution = " + result);
     }
 }
