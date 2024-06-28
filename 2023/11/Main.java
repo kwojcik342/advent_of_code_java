@@ -5,7 +5,7 @@ public class Main {
 
     public static void main(String[] args) {
         ObservatoryImage oi = new ObservatoryImage();
-        try (Scanner sc = new Scanner(Paths.get("input.txt"))) {
+        try (Scanner sc = new Scanner(Paths.get("input\\input.txt"))) {
             while (sc.hasNextLine()) {
                 String line = sc.nextLine();
                 if(!line.isBlank()){
@@ -16,13 +16,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        //System.out.println(oi);
-        oi.expandSpace();
-        //System.out.println(oi);
-
-        System.out.println();
-
-        System.out.println("part 1 = " + oi.sumShortestPathsManhattan());
+        System.out.println("solution = " + oi.sumShortestPathsManhattan());
         
     }
 }

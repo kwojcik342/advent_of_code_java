@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -5,7 +6,7 @@ public class ObservatoryImage {
     private int galaxiesCount;
     private int imageMaxX;
     private int imageMaxY;
-    private HashMap<Integer, Integer[]> galaxies;
+    private HashMap<Integer, ArrayList<Integer>> galaxies;
     private HashSet<Integer> colsWithoutGalaxy;
     private HashSet<Integer> rowsWithoutGalaxy;
 
@@ -25,9 +26,9 @@ public class ObservatoryImage {
         for(int g : this.galaxies.keySet()){
             sb.append(g);
             sb.append(": (");
-            sb.append(this.galaxies.get(g)[0]);
+            sb.append(this.galaxies.get(g).get(0));
             sb.append(", ");
-            sb.append(this.galaxies.get(g)[1]);
+            sb.append(this.galaxies.get(g).get(1));
             sb.append(")\n");
         }
 
@@ -76,57 +77,45 @@ public class ObservatoryImage {
             this.galaxiesCount++;
             this.colsWithoutGalaxy.remove(galaxyIdx);
 
-            this.galaxies.put(this.galaxiesCount, new Integer[]{galaxyIdx, this.imageMaxY});
+            ArrayList<Integer> coordinates = new ArrayList<>();
+            coordinates.add(galaxyIdx);
+            coordinates.add(this.imageMaxY);
+
+            this.galaxies.put(this.galaxiesCount, new ArrayList<>(coordinates));
 
             prevIdx = galaxyIdx + 1;
         }
     }
 
-    public void expandSpace(){
-        //each row or column that had no galaxy in it should be counted twice
-        //this method adjusts coordinates accordingly
-
-        for(int g : this.galaxies.keySet()){
-            Integer[] newCoordinates = new Integer[2];
-            newCoordinates[0] = this.galaxies.get(g)[0];
-            newCoordinates[1] = this.galaxies.get(g)[1];
-
-            //System.out.println("key = " + g +": (" + newCoordinates[0] + ", " + newCoordinates[1] + ")");
-
-            for(int x : this.colsWithoutGalaxy){
-                if (x < this.galaxies.get(g)[0]) {
-                    newCoordinates[0]++;
-                } else {
-                    break;
-                }
-            }
-
-            for(int y : this.rowsWithoutGalaxy){
-                if (y < this.galaxies.get(g)[1]) {
-                    newCoordinates[1]++;
-                } else {
-                    break;
-                }
-            }
-
-            this.galaxies.put(g, newCoordinates);
-        }
-
-        this.imageMaxX += this.colsWithoutGalaxy.size();
-        this.imageMaxY += this.rowsWithoutGalaxy.size();
-    }
-
     public long sumShortestPathsManhattan(){
-        //solution to part 1
+        //solution
         long sum = 0;
 
         for(int g1 : this.galaxies.keySet()){
             for(int g2 : this.galaxies.keySet()){
                 if (g1 < g2) {
-                    Integer[] g1Coordinates = this.galaxies.get(g1);
-                    Integer[] g2Coordinates = this.galaxies.get(g2);
+                    int g1x = this.galaxies.get(g1).get(0);
+                    int g1y = this.galaxies.get(g1).get(1);
 
-                    int distance = (Math.abs(g1Coordinates[0] - g2Coordinates[0]) + Math.abs(g1Coordinates[1] - g2Coordinates[1]));
+                    int g2x = this.galaxies.get(g2).get(0);
+                    int g2y = this.galaxies.get(g2).get(1);
+
+                    int distance = (Math.abs(g1x - g2x) + Math.abs(g1y - g2y));
+
+                    //empty spaces
+                    //int additionalSpace = 1; // for part 1
+                    int additionalSpace = 999999; // for part 2
+                    for(int c : this.colsWithoutGalaxy){
+                        if (c > Math.min(g1x, g2x) && c < Math.max(g1x, g2x)) {
+                            distance += additionalSpace;
+                        }
+                    }
+
+                    for(int r : this.rowsWithoutGalaxy){
+                        if (r > Math.min(g1y, g2y) && r < Math.max(g1y, g2y)) {
+                            distance += additionalSpace;
+                        }
+                    }
 
                     //System.out.println(g1 + " -> " + g2 + " = " + distance);
 
