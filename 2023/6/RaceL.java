@@ -1,6 +1,6 @@
 public class RaceL {
     private long raceDuration;
-    private long recordDistance;
+    private long recordDistance; 
 
     public RaceL(long raceDuration, long recordDistance){
         this.raceDuration = raceDuration;

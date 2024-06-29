@@ -1,6 +1,6 @@
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Scanner; 
 
 public class Calibration{
     public static void main(String[] args) {

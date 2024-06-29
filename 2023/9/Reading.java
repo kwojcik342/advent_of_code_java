@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.stream.Collectors; 
 
 public class Reading {
     private ArrayList<Integer> initialValues;
