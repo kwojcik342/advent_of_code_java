@@ -43,7 +43,7 @@ public class Contraption {
         }
     }
 
-    private ArrayList<Coordinate> getEnergizedTiles(){
+    private ArrayList<Coordinate> getEnergizedTiles(int startX, int startY, int startDx, int startDy){
         //list containing tiles passed in specific direction
         ArrayList<Route> energizedTiles = new ArrayList<>();
 
@@ -55,7 +55,7 @@ public class Contraption {
         //direction can be one of: (1, 0), (0, 1), (-1, 0), (0, -1)
         //adding direction coordinates to current position produces coordinates of next tile on travel path
         //example of moving right: currentPos(3, 0) + direction(1, 0) = nextTile(4, 0)
-        path.add(new Route(new Coordinate(0, 0), new Coordinate(1, 0)));
+        path.add(new Route(new Coordinate(startX, startY), new Coordinate(startDx, startDy)));
 
         while (true) {
             //Coordinate nextPos = new Coordinate(currentPos.getX() + direction.getX(), currentPos.getY() + direction.getY());
@@ -184,7 +184,7 @@ public class Contraption {
     }
 
     public void countEnergizedTiles(){
-        ArrayList<Coordinate> energizedTiles = this.getEnergizedTiles();
+        ArrayList<Coordinate> energizedTiles = this.getEnergizedTiles(0, 0, 1, 0);
 
         // LOG START
         // for(int i = 0; i < this.layout.size(); i++){
@@ -210,5 +210,47 @@ public class Contraption {
         // LOG END
 
         System.out.println("solution for part 1 = " + energizedTiles.size());
+    }
+
+    public void countEnergizedTilesMulti(){
+        //solution for part 2 
+        //we can start on any tile on edges
+        int maxEnergizedTiles = -1;
+
+        //rows
+        for(int r = 0; r < this.layout.size(); r++){
+            //beam heading to the right from the left edge
+            ArrayList<Coordinate> energizedTiles = this.getEnergizedTiles(0, r, 1, 0);
+
+            if (energizedTiles.size() > maxEnergizedTiles) {
+                maxEnergizedTiles = energizedTiles.size();
+            }
+
+            //beam heading to the left from the right edge
+            energizedTiles = this.getEnergizedTiles(this.layout.get(r).size()-1, r, -1, 0);
+
+            if (energizedTiles.size() > maxEnergizedTiles) {
+                maxEnergizedTiles = energizedTiles.size();
+            }
+        }
+
+        //columns
+        for(int c = 0; c < this.layout.get(0).size(); c++){
+            //beam heading downwards from the top
+            ArrayList<Coordinate> energizedTiles = this.getEnergizedTiles(c, 0, 0, 1);
+
+            if (energizedTiles.size() > maxEnergizedTiles) {
+                maxEnergizedTiles = energizedTiles.size();
+            }
+
+            //beam heading to the upwards from the bottom
+            energizedTiles = this.getEnergizedTiles(this.layout.size()-1, c, 0, -1);
+
+            if (energizedTiles.size() > maxEnergizedTiles) {
+                maxEnergizedTiles = energizedTiles.size();
+            }
+        }
+
+        System.out.println("solution for part 2 = " + maxEnergizedTiles);
     }
 }

@@ -7,5 +7,6 @@ public class Main {
         //c.printLayout();
         //System.out.println();
         c.countEnergizedTiles();
+        c.countEnergizedTilesMulti();
     }
 }
