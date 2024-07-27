@@ -26,6 +26,18 @@ public class Rule {
         return this.processingResult;
     }
 
+    public char getCheckedValue(){
+        return this.checkedValue;
+    }
+
+    public char getCondition(){
+        return this.condition;
+    }
+
+    public int getComparedValue(){
+        return this.comparedValue;
+    }
+
     public String toString(){
         return String.valueOf(this.checkedValue) + String.valueOf(this.condition) + this.comparedValue + ":" + this.processingResult;
     }

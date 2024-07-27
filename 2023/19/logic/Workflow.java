@@ -39,6 +39,14 @@ public class Workflow {
         return this.name;
     }
 
+    public ArrayList<Rule> getRules(){
+        return this.rules;
+    }
+
+    public String getDefaultResult(){
+        return this.defaultResult;
+    }
+
     public String processPart(Part p){
         String result = this.defaultResult;
 

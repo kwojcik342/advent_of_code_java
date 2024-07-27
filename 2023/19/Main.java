@@ -6,5 +6,6 @@ public class Main {
         PartSortingSystem pss = new PartSortingSystem("input\\input.txt");
         //pss.printAll();
         pss.calculateAcceptedParts();
+        pss.getCombinations();
     }
 }
