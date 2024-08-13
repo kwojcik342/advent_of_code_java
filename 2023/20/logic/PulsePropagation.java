@@ -93,6 +93,7 @@ public class PulsePropagation {
     public void propagate(){
         // solution to part 1 
         // multiply count of all low pulses sent by count of all high pulses sent
+        // after pressing button 1000 times
         long lowPulseCount = 0;
         long highPulseCount = 0;
 
@@ -124,9 +125,122 @@ public class PulsePropagation {
             }
         }
 
-
         System.out.println("lowPulseCount = " + lowPulseCount);
         System.out.println("highPulseCount = " + highPulseCount);
         System.out.println("solution for part 1 = " + (lowPulseCount*highPulseCount));
+    }
+
+    private String getRxInput(){
+        // returns name of the module that sends pulse to rx
+        String in = "";
+
+        for(Propagable p : this.mm.values()){
+            BaseModule bm = (BaseModule) p;
+            if (bm.getDestinations().contains("rx")) {
+                in = bm.getName();
+                break;
+            }
+        }
+
+        return in;
+    }
+
+    private long gcd(long a, long b){
+        if (b == 0) {
+            return a;
+        }
+        return this.gcd(b, a%b);
+    }
+
+    public void calcLowToRx(){
+        // solution to part 2
+        // how many button presses to get low pulse on module called rx?
+
+        // rx gets pulse only from 1 module which is conjunction module, named "nc", (it will send low only if all inputs send high)
+        // we have to calculate cycle for each input module of "nc" and then calculate least common multiple of those values
+
+        String inRxName = this.getRxInput();
+        //System.out.println("module sending input to rx: " + inRxName);
+        CModule inRx = (CModule) this.mm.get(inRxName);
+        //System.out.println("input names for module before rx: " + inRx.getSource());
+
+        HashMap<String, Long> cycleStart = new HashMap<>();
+        HashMap<String, Long> cycleEnd = new HashMap<>();
+
+        long btnPessCnt = 0;
+
+        while (true) {
+            //constantly pressing button until we have solution
+            btnPessCnt += 1;
+
+            this.ppq.add(new QPulse("btn", "broadcaster", 0));
+
+            while (true) {
+
+                QPulse p = ppq.remove();
+
+                if (p.getDestName().equals(inRxName) && p.getPulse() != 0) {
+                    //if pulse is being sent to module before rx we are counting cycles
+                    boolean isStart = false;
+
+                    if (!cycleStart.containsKey(p.getSrcName())) {
+                        cycleStart.put(p.getSrcName(), btnPessCnt);
+                        isStart = true;
+                    }
+
+                    if (!isStart) {
+                        if (!cycleEnd.containsKey(p.getSrcName())) {
+                            cycleEnd.put(p.getSrcName(), btnPessCnt);
+                        }
+                    }
+                }
+
+                if (inRx.getSource().size() == cycleStart.size() && inRx.getSource().size() == cycleEnd.size()) {
+                    // if we have start and end of all input cycles we can break
+                    break;
+                }
+
+                //System.out.println("Processing queue: " + p.toString()); // LOG
+
+                BaseModule bm = (BaseModule) this.mm.get(p.getDestName());
+
+                if (bm != null) {
+                    bm.handlePulse(p.getPulse(), p.getSrcName(), ppq);
+                }
+
+                if (ppq.isEmpty()) {
+                    break;
+                }
+            }
+
+            if (inRx.getSource().size() == cycleStart.size() && inRx.getSource().size() == cycleEnd.size()) {
+                // if we have start and end of all input cycles we can break
+                break;
+            }
+        }
+
+        // System.out.println("cycle start: " + cycleStart);
+        // System.out.println("cycle end: " + cycleEnd);
+
+        //calculate cycles lengths
+        ArrayList<Long> cycles = new ArrayList<>();
+
+        for(String k : cycleStart.keySet()){
+            cycles.add(cycleEnd.get(k) - cycleStart.get(k));
+        }
+
+        //System.out.println("cycles: " + cycles);
+
+        //calculate least common multiple for cycles
+        // lcm(a,b) = (a*b) / gcd(a,b)
+        // gcd(a,b) -> recursively divide bigger number by smaller
+        long lcm = cycles.get(0);
+        for(int i = 1; i < cycles.size(); i++){
+            long a = lcm;
+            long b = cycles.get(i);
+            lcm = (a*b) / (this.gcd(a, b));
+        }
+
+        System.out.println("solution for part 2 = " + lcm);
     }
 }

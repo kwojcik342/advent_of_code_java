@@ -2,6 +2,7 @@ package domain.moduleTypes;
 
 import java.util.HashMap;
 import java.util.Queue;
+import java.util.Set;
 
 import domain.queue.QPulse;
 
@@ -30,6 +31,10 @@ public class CModule extends BaseModule{
         }
 
         return sb.toString();
+    }
+
+    public Set<String> getSource(){
+        return this.srcToPulseMem.keySet();
     }
 
     @Override
