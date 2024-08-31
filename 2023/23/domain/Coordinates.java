@@ -15,6 +15,14 @@ public class Coordinates {
         this.dy = dy;
     }
 
+    public Coordinates(Coordinates c){
+        this.x = c.x;
+        this.y = c.y;
+        this.pathLength = c.pathLength;
+        this.dx = c.dx;
+        this.dy = c.dy;
+    }
+
     public int getX(){
         return this.x;
     }

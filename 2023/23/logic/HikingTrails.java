@@ -11,10 +11,12 @@ import domain.Coordinates;
 public class HikingTrails {
 
     private ArrayList<String> inputData;
+    private ArrayList<Integer> pathsNoSlopes;
 
     public HikingTrails(String fileName){
 
         this.inputData = new ArrayList<>();
+        this.pathsNoSlopes = new ArrayList<>();
 
         try (Scanner sc = new Scanner(Paths.get(fileName))) {
             while (sc.hasNextLine()) {
@@ -27,8 +29,6 @@ public class HikingTrails {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        //this.initGraph(inputData);
     }
 
     private ArrayList<Coordinates> calculatePaths(){
@@ -130,5 +130,111 @@ public class HikingTrails {
         }
 
         System.out.println("Solution for part 1 = " + longestPath);
+    }
+
+    // private ArrayList<ArrayList<Integer>> getInitVisited(){
+    //     // creates list of nodes possible to visit based on initial data
+    //     // used for solution to part 2
+    //     ArrayList<ArrayList<Integer>> visited = new ArrayList<>(this.inputData.size());
+
+    //     for(String s : this.inputData){
+    //         ArrayList<Integer> tmp = new ArrayList<>(s.length());
+
+    //         for(int i = 0; i < s.length(); i++){
+    //             if(s.charAt(i) == '#'){
+    //                 tmp.add(1);
+    //             }else {
+    //                 tmp.add(0);
+    //             }
+                
+    //         }
+
+    //         visited.add(tmp);
+    //     }
+
+    //     return visited;
+    // }
+
+    private void followPath(Coordinates c, ArrayList<String> availablePaths){
+        
+        // really slow solution
+
+        Coordinates cc = new Coordinates(c); // current point on path 
+        Coordinates cn = null;               // next point on path
+        int[][] directions = {{0,1}, {1,0}, {0,-1}, {-1,0}};
+
+        while (true) {
+
+            // mark current point as visited
+            StringBuilder row = new StringBuilder(availablePaths.get(cc.getY()));
+            row.setCharAt(cc.getX(), '#');
+            availablePaths.set(cc.getY(), row.toString());
+
+            //System.out.println(availablePaths); // LOG
+
+            for(int[] d : directions){
+
+                int newX = cc.getX() + d[0];
+
+                if (newX < 0 || newX >= this.inputData.get(0).length()) {
+                    // next point would be out of bounds
+                    continue;
+                }
+
+                int newY = cc.getY() + d[1];
+
+                if (newY < 0 || newY >= this.inputData.size()) {
+                    // next point would be out of bounds
+                    continue;
+                }
+
+                if (availablePaths.get(newY).charAt(newX) != '#') {
+
+                    // System.out.println("traveling through (" + newX + ", " + newY + ")"); // LOG
+
+                    // point that we can travel through
+                    if (newY == this.inputData.size() -1) {
+                        // last row should have only 1 available point
+                        // if we reached that it means we found complete path to travel through
+                        this.pathsNoSlopes.add(cc.getPathLength() + 1);
+                        continue;
+                    }
+
+                    if (cn == null) {
+                        // 1st neighboring point that we can travel through
+                        cn = new Coordinates(newX, newY, cc.getPathLength() + 1, 0, 0); // dx and dy from Coordinates doesn't matter in this approach
+                    }else{
+                        // we already have a point to travel through, start new recursion for another path
+                        this.followPath(new Coordinates(newX, newY, cc.getPathLength() + 1, 0, 0), new ArrayList<>(availablePaths));
+                    }
+                }
+            }
+
+            if (cn == null) {
+                // no more possible points to travel through
+                break;
+            }
+
+            cc = cn;
+            cn = null;
+        }
+
+    }
+
+    public void getLongestPathNoSlopes(){
+        int longestPath = 0;
+
+        // ArrayList<ArrayList<Integer>> visited = this.getInitVisited();
+        ArrayList<String> availablePaths = new ArrayList<>(inputData);
+
+        this.followPath(new Coordinates(this.inputData.get(0).indexOf('.'), 0, 0, 0, 1), availablePaths);
+
+        for(int p : this.pathsNoSlopes){
+            if (p > longestPath) {
+                longestPath = p;
+            }
+        }
+
+        System.out.println("Solution for part 2 = " + longestPath);
     }
 }
